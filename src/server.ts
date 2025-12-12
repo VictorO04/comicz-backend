@@ -13,4 +13,4 @@ app.get("/", (req: express.Request, res: express.Response) => {
 
 app.listen(serverPort, () => {
     console.log(`servidor rodando em: http://localhost:${serverPort}`);
-})
+});
