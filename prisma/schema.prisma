@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model escritores {
+  id_escritor     Int             @id @default(autoincrement())
+  nome            String          @db.VarChar(100)
+  pais_origem     String          @db.VarChar(60)
+  bio             String
+  data_nascimento DateTime        @db.Date
+  atualizado_em   DateTime?       @default(now()) @db.Timestamp(6)
+  obra_escritor   obra_escritor[]
+}
+
+model generos {
+  id_genero     Int           @id @default(autoincrement())
+  nome          String        @unique @db.VarChar(30)
+  descricao     String?
+  atualizado_em DateTime?     @default(now()) @db.Timestamp(6)
+  obra_genero   obra_genero[]
+}
+
+model ilustradores {
+  id_ilustrador   Int               @id @default(autoincrement())
+  nome            String            @db.VarChar(100)
+  pais_origem     String            @db.VarChar(60)
+  bio             String
+  data_nascimento DateTime          @db.Date
+  atualizado_em   DateTime?         @default(now()) @db.Timestamp(6)
+  obra_ilustrador obra_ilustrador[]
+}
+
+model obra_escritor {
+  id_obra_escritor Int        @id @default(autoincrement())
+  id_escritor      Int
+  id_obra          Int
+  escritores       escritores @relation(fields: [id_escritor], references: [id_escritor], onDelete: Cascade, onUpdate: NoAction, map: "fk_obra_escritor_escritor")
+  obras            obras      @relation(fields: [id_obra], references: [id_obra], onDelete: Cascade, onUpdate: NoAction, map: "fk_obra_escritor_obra")
+
+  @@unique([id_obra, id_escritor], map: "unq_obra_escritor")
+}
+
+model obra_genero {
+  id_obra_genero Int     @id @default(autoincrement())
+  id_obra        Int
+  id_genero      Int
+  generos        generos @relation(fields: [id_genero], references: [id_genero], onDelete: Cascade, onUpdate: NoAction, map: "fk_obra_genero_genero")
+  obras          obras   @relation(fields: [id_obra], references: [id_obra], onDelete: Cascade, onUpdate: NoAction, map: "fk_obra_genero_obra")
+
+  @@unique([id_obra, id_genero], map: "unq_obra_genero")
+}
+
+model obra_ilustrador {
+  id_obra_ilustrador Int          @id @default(autoincrement())
+  id_ilustrador      Int
+  id_obra            Int
+  ilustradores       ilustradores @relation(fields: [id_ilustrador], references: [id_ilustrador], onDelete: Cascade, onUpdate: NoAction, map: "fk_obra_ilustrador_ilustrador")
+  obras              obras        @relation(fields: [id_obra], references: [id_obra], onDelete: Cascade, onUpdate: NoAction, map: "fk_obra_ilustrador_obra")
+
+  @@unique([id_obra, id_ilustrador], map: "unq_obra_ilustrador")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model obras {
+  id_obra           Int                    @id @default(autoincrement())
+  capa_url          String                 @db.VarChar(255)
+  titulo            String                 @unique @db.VarChar(100)
+  sinopse           String
+  tipo_obra         tipo_obra_enum
+  ano_lancamento    Int                    @db.SmallInt
+  status_publicacao status_publicacao_enum
+  total_capitulos   Int?
+  total_volumes     Int?
+  data_cadastro     DateTime?              @default(now()) @db.Timestamp(6)
+  atualizado_em     DateTime?              @default(now()) @db.Timestamp(6)
+  obra_escritor     obra_escritor[]
+  obra_genero       obra_genero[]
+  obra_ilustrador   obra_ilustrador[]
+}
+
+enum status_publicacao_enum {
+  completo
+  andamento
+  hiato
+}
+
+enum tipo_obra_enum {
+  comic_book    @map("comic book")
+  mang_         @map("mangá")
+  manhwa
+  manhua
+  graphic_novel @map("graphic novel")
+  tirinha
+  gibi
+  novel
+  one_shot      @map("one shot")
+}
