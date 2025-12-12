@@ -1,4 +1,4 @@
-import * as obrasModel from "../models/obrasModel";
+import * as obrasModel from "../models/obrasModel.js";
 import { Request, Response } from "express";
 
 export const getAllObras = async (req: Request, res: Response) => {
